@@ -4,3 +4,4 @@
 - Phong shading
 - Mesh
 - Multiple light sources
+- Texture map
