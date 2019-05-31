@@ -1,7 +1,13 @@
 ### Invisible Confusion - Jack Lu, Kevin Ly
 
-#### Features
-- Phong shading
+#### Potential Features
+- Choose one:
+    - lighting
+        - Phong and gourd shading
+        - Multiple light sources
+    - Hard
+        - Texture map
+        - Shadow mapping
+
 - Mesh
-- Multiple light sources
-- Texture map
+
