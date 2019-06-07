@@ -18,3 +18,5 @@ scale 1 1 0.5
 torus dull_yellow 0 0 0 30 175
 display
 save face.png
+
+mesh diamond.obj

@@ -118,6 +118,7 @@ lex.lex()
 commands = []
 symbols = {}
 
+
 def p_input(p):
     """input :
             | command input"""
@@ -335,6 +336,7 @@ def p_command_mesh(p):
                | MESH SYMBOL CO TEXT
                | MESH CO TEXT SYMBOL
                | MESH SYMBOL CO TEXT SYMBOL"""
+    print(p)
     cmd = {'op':p[1], 'args' : [], 'cs':None, 'constants':None}
     arg_start = 2
     if isinstance(p[2], str):
