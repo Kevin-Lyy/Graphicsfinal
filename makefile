@@ -4,6 +4,9 @@ test: examples/simple_anim.mdl lex.py main.py matrix.py mdl.py display.py draw.p
 mesh: face.mdl diamond.obj lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
 	python main.py face.mdl
 
+shade: face.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
+	python main.py face.mdl
+
 face: face.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
 	python main.py face.mdl
 

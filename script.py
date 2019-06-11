@@ -29,7 +29,7 @@ def first_pass( commands ):
     base_exist = 0
 
     for command in commands:
-        #print command
+        print command
         c = command['op']
         args = command['args']
         if c == 'frames':
@@ -134,6 +134,8 @@ def run(filename):
     consts = ''
     coords = []
     coords1 = []
+    print "SYMBOL\n\n\n"
+    print symbols    
 
     count = 0
     for frame in frames:
