@@ -79,7 +79,6 @@ def second_pass( commands, num_frames ):
     return frames
 
 
-
 def run(filename):
     """
     This function runs an mdl script
