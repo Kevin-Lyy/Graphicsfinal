@@ -172,7 +172,7 @@ def run(filename):
                 # this is some object file
                 if command['constants'] and command['constants'] != ":":
                     reflect = command['constants']
-                print(args[0])
+
                 add_mesh(tmp, args[0])
                 matrix_mult( stack[-1], tmp )
                 draw_polygons(tmp, screen, zbuffer, view, ambient, lights, symbols, reflect)

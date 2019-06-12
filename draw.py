@@ -79,17 +79,16 @@ def add_mesh(polygons, filename):
 
     for line in lines:
         tokens = line.split(" ")
-        #vertex
         if tokens[0] == "v":
             coords = [5 * float(coord) for coord in tokens[2:]]
             vertices.append(coords)
 
-        #face
-        elif tokens[0] == "f":
+        if tokens[0] == "f":
             Nvertices = []
             for token in tokens[1:-1]:
                 face_infos = token.split("/")
                 Nvertices.append(int(face_infos[0]))
+
 
 
             a = vertices[Nvertices[0]]
@@ -99,10 +98,10 @@ def add_mesh(polygons, filename):
                 d = vertices[Nvertices[3]]
                 add_polygon(polygons, a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2])
                 add_polygon(polygons, a[0], a[1], a[2], c[0], c[1], c[2], d[0], d[1], d[2])
-
             if len(Nvertices) == 3:
                 add_polygon(polygons, a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2])
 
+    # print(tmp)
 
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):

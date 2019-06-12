@@ -118,7 +118,6 @@ lex.lex()
 commands = []
 symbols = {}
 
-
 def p_input(p):
     """input :
             | command input"""
@@ -311,9 +310,12 @@ def p_command_constants(p):
     commands.append(cmd)
 
 def p_command_light(p):
-    "command : LIGHT SYMBOL NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER"
+    """command : LIGHT SYMBOL NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+               | LIGHT SYMBOL NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER SYMBOL SYMBOL"""
     symbols[p[2]] = ['light', {'location' : p[3:6], 'color' : p[6:]}]
-    cmd = {'op':p[1], 'args' : None, 'light' : p[2] }
+    cmd = {'op':p[1], 'args' : None, 'knob' : None, 'light' : p[2] }
+    if len(p) == 11:
+        cmd['knob'] = [p[9], p[10]]
     commands.append(cmd)
 
 def p_command_shading(p):
@@ -336,7 +338,6 @@ def p_command_mesh(p):
                | MESH SYMBOL CO TEXT
                | MESH CO TEXT SYMBOL
                | MESH SYMBOL CO TEXT SYMBOL"""
-    print(p)
     cmd = {'op':p[1], 'args' : [], 'cs':None, 'constants':None}
     arg_start = 2
     if isinstance(p[2], str):
@@ -348,23 +349,6 @@ def p_command_mesh(p):
     if len(p) == 5 and isinstance(p[4], str):
         cmd['cs'] = p[4]
     commands.append(cmd)
-
-# def p_command_mesh(p):
-#     """command : MESH CO TEXT TEXT
-#                | MESH SYMBOL CO TEXT TEXT
-#                | MESH CO TEXT TEXT SYMBOL
-#                | MESH SYMBOL CO TEXT TEXT SYMBOL"""
-#     cmd = {'op':p[1], 'args' : [], 'cs':None, 'constants':None}
-#     arg_start = 3
-#     if isinstance(p[2], str):
-#         cmd['constants'] = p[2]
-#         arg_start+= 1
-#     cmd['args'].append(p[arg_start]+p[arg_start+1])
-#     if len(p) == 6 and isinstance(p[5], str) and p[2]==":":
-#         cmd['cs'] = p[5]
-#     if len(p) == 7 and isinstance(p[6], str) and p[3]==":":
-#         cmd['cs'] = p[6]
-#     commands.append(cmd)
 
 def p_save_knobs(p):
     "command : SAVE_KNOBS SYMBOL"
