@@ -69,6 +69,40 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
         z1+= dz1
         y+= 1
 
+def add_mesh(polygons, filename):
+
+    f = open(filename, "r")
+    lines = f.read().split("\n")
+
+    vertices = ["placeholder"]
+
+
+    for line in lines:
+        tokens = line.split(" ")
+        #vertex
+        if tokens[0] == "v":
+            coords = [5 * float(coord) for coord in tokens[2:]]
+            vertices.append(coords)
+
+        #face
+        elif tokens[0] == "f":
+            Nvertices = []
+            for token in tokens[1:-1]:
+                face_infos = token.split("/")
+                Nvertices.append(int(face_infos[0]))
+
+
+            a = vertices[Nvertices[0]]
+            b = vertices[Nvertices[1]]
+            c = vertices[Nvertices[2]]
+            if len(Nvertices) == 4:
+                d = vertices[Nvertices[3]]
+                add_polygon(polygons, a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2])
+                add_polygon(polygons, a[0], a[1], a[2], c[0], c[1], c[2], d[0], d[1], d[2])
+
+            if len(Nvertices) == 3:
+                add_polygon(polygons, a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2])
+
 
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
@@ -76,7 +110,7 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x1, y1, z1)
     add_point(polygons, x2, y2, z2)
 
-def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
+def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, reflect):
     if len(polygons) < 2:
         print 'Need at least 3 points to draw'
         return
@@ -89,7 +123,13 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, light, symbols, ref
         #print normal
         if normal[2] > 0:
 
-            color = get_lighting(normal, view, ambient, light, symbols, reflect )
+            color = [0,0,0]
+            for light in lights:
+                c =  get_lighting(normal, view, ambient, light, symbols, reflect )
+                color[0] += c[0]
+                color[1] += c[1]
+                color[2] += c[2]
+            limit_color(color)
             scanline_convert(polygons, point, screen, zbuffer, color)
 
             # draw_line( int(polygons[point][0]),
