@@ -97,13 +97,7 @@ def run(filename):
     ambient = [50,
                50,
                50]
-    light = [[0.5,
-            0.75,
-              1],
-             [255,
-              255,
-            255]]
-
+    lights = [] #
     color = [0, 0, 0]
     symbols['.white'] = ['constants',
                          {'red': [0.2, 0.5, 0.5],
@@ -116,6 +110,7 @@ def run(filename):
 
 
     for i in range(int(num_frames)):
+        print ("Pic " + str(i))
         tmp = new_matrix()
         ident( tmp )
 
@@ -128,15 +123,61 @@ def run(filename):
         coords = []
         coords1 = []
 
-        if num_frames > 1:
-            for knob in knobs[i]:
-                symbols[knob][1] = knobs[i][knob]
+        for knob in knobs[i]:
+            symbols[knob][1] = knobs[i][knob]
 
         for command in commands:
-            print command
+            # print command
             c = command['op']
             args = command['args']
             knob_value = 1
+
+            if c == 'light':
+                s = symbols[command['light']]
+                sample_color = s[1]['color'][:]
+                sample_location = s[1]['location'][:]
+                if command['knob']:
+                    knob1_value = symbols[command["knob"][0]][1]
+                    knob2_value = symbols[command["knob"][1]][1]
+                    # save a copy of old info..
+                    if command["knob"][0] == "k0":
+                        s[1]['color'][0] = min(s[1]['color'][0] * knob1_value, 255)
+                        s[1]['color'][1] = min(s[1]['color'][1] * knob1_value, 255)
+                        s[1]['color'][2] = min(s[1]['color'][2] * knob1_value, 255)
+                    if command["knob"][1] == "k1":
+                        s[1]['location'][0] = min(s[1]['location'][0] * knob2_value, 1)
+                        # s[1]['location'][1] = min(s[1]['location'][1] * knob2_value, 1)
+                        # s[1]['location'][2] = min(s[1]['location'][2] * knob2_value, 1)
+
+                to_remove = -1
+                for j in range(len(lights)):
+                    sym = lights[0][2]
+                    if sym == command['light']:
+                        to_remove = j
+                print to_remove
+
+                if to_remove >= 0:
+                    lights.pop(j)
+
+                print "after clearing the stuff"
+                print lights
+
+                lights.append([s[1]['location'], s[1]['color'], command['light']])
+                print "after appending the lights"
+                print lights
+                s[1]['color'] = sample_color
+                s[1]['location'] = sample_location
+
+            if c == 'mesh':
+                # this is some object file
+                if command['constants'] and command['constants'] != ":":
+                    reflect = command['constants']
+                print(args[0])
+                add_mesh(tmp, args[0])
+                matrix_mult( stack[-1], tmp )
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, symbols, reflect)
+                tmp = []
+                reflect = '.white'
 
             if c == 'box':
                 if command['constants']:
@@ -145,33 +186,37 @@ def run(filename):
                         args[0], args[1], args[2],
                         args[3], args[4], args[5])
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, symbols, reflect)
                 tmp = []
                 reflect = '.white'
+
             elif c == 'sphere':
                 if command['constants']:
                     reflect = command['constants']
                 add_sphere(tmp,
                            args[0], args[1], args[2], args[3], step_3d)
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, symbols, reflect)
                 tmp = []
                 reflect = '.white'
+
             elif c == 'torus':
                 if command['constants']:
                     reflect = command['constants']
                 add_torus(tmp,
                           args[0], args[1], args[2], args[3], args[4], step_3d)
                 matrix_mult( stack[-1], tmp )
-                draw_polygons(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                draw_polygons(tmp, screen, zbuffer, view, ambient, lights, symbols, reflect)
                 tmp = []
                 reflect = '.white'
+
             elif c == 'line':
                 add_edge(tmp,
                          args[0], args[1], args[2], args[3], args[4], args[5])
                 matrix_mult( stack[-1], tmp )
                 draw_lines(tmp, screen, zbuffer, color)
                 tmp = []
+
             elif c == 'move':
                 if command["knob"]:
                     knob_value = symbols[command["knob"]][1]
@@ -179,6 +224,7 @@ def run(filename):
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
+
             elif c == 'scale':
                 if command["knob"]:
                     knob_value = symbols[command["knob"]][1]
@@ -186,6 +232,7 @@ def run(filename):
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
+
             elif c == 'rotate':
                 if command["knob"]:
                     knob_value = symbols[command["knob"]][1]
@@ -199,18 +246,19 @@ def run(filename):
                 matrix_mult( stack[-1], tmp )
                 stack[-1] = [ x[:] for x in tmp]
                 tmp = []
+
             elif c == 'push':
                 stack.append([x[:] for x in stack[-1]] )
+
             elif c == 'pop':
                 stack.pop()
+
             elif c == 'display':
                 display(screen)
+
             elif c == 'save':
                 save_extension(screen, args[0])
-        if num_frames > 1:
-            filename = 'anim/' + name + ('%03d' %int(i))
-            print "file name: " + filename
-            save_extension(screen,filename)
 
-    if num_frames > 1:
-        make_animation(name)
+        save_extension(screen,'anim/' + name + ('%03d' %int(i)))
+
+    make_animation(name)
