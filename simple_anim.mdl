@@ -1,5 +1,5 @@
-frames 10 
-basename baymax_test
+frames 50
+basename simple_50
 push
 move 250 250 0
 scale 2 2 2 bigenator
