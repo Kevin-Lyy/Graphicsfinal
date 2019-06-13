@@ -85,6 +85,9 @@ def limit_color(color):
 #vector functions
 #normalize vetor, should modify the parameter
 def normalize(vector):
+    print '---------'
+    print vector
+    print '---------'
     magnitude = math.sqrt( vector[0] * vector[0] +
                            vector[1] * vector[1] +
                            vector[2] * vector[2])
