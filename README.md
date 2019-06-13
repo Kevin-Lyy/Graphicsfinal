@@ -10,4 +10,3 @@
 - No
     - Texture map
     - Shadow mapping
-
