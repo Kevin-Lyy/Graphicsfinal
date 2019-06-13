@@ -154,17 +154,17 @@ def run(filename):
                     sym = lights[0][2]
                     if sym == command['light']:
                         to_remove = j
-                print to_remove
+                #print to_remove
 
                 if to_remove >= 0:
                     lights.pop(j)
 
-                print "after clearing the stuff"
-                print lights
+                #print "after clearing the stuff"
+                #print lights
 
                 lights.append([s[1]['location'], s[1]['color'], command['light']])
-                print "after appending the lights"
-                print lights
+                #print "after appending the lights"
+                #print lights
                 s[1]['color'] = sample_color
                 s[1]['location'] = sample_location
 

@@ -1,6 +1,9 @@
 # diamond.obj
+#
+#g Object001
+#
 
-g Object001
+mtllib Bigmax_White_OBJ.mtl
 
 v 0.000000E+00 0.000000E+00 78.0000
 v 45.0000 45.0000 0.000000E+00

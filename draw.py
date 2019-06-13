@@ -71,23 +71,29 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
 
 def add_mesh(polygons, filename):
 
-    f = open(filename, "r")
+    f = open(filename + '.obj', "r")
     lines = f.read().split("\n")
 
     vertices = ["placeholder"]
 
 
     for line in lines:
-        tokens = line.split(" ")
+        tokens = line.split()
+        if len(tokens) == 0:
+            continue
         if tokens[0] == "v":
-            coords = [5 * float(coord) for coord in tokens[2:]]
+            coords = [5 * float(coord) for coord in tokens[1:4]]
             vertices.append(coords)
 
         if tokens[0] == "f":
+            print tokens
             Nvertices = []
-            for token in tokens[1:-1]:
+            for token in tokens[1:]:
                 face_infos = token.split("/")
+                print token
+                print face_infos
                 Nvertices.append(int(face_infos[0]))
+            print Nvertices
 
 
 
