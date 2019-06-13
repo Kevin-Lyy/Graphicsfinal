@@ -82,7 +82,7 @@ def add_mesh(polygons, filename):
         if len(tokens) == 0:
             continue
         if tokens[0] == "v":
-            coords = [5 * float(coord) for coord in tokens[1:4]]
+            coords = [1 * float(coord) for coord in tokens[1:4]]
             vertices.append(coords)
 
         if tokens[0] == "f":
