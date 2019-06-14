@@ -74,6 +74,7 @@ def add_mesh(polygons, filename):
     f = open(filename + '.obj', "r")
     lines = f.read().split("\n")
 
+    # vertex index at 1
     vertices = ["placeholder"]
 
 
@@ -81,8 +82,9 @@ def add_mesh(polygons, filename):
         tokens = line.split()
         if len(tokens) == 0:
             continue
+
         if tokens[0] == "v":
-            coords = [1 * float(coord) for coord in tokens[1:4]]
+            coords = [200 * float(coord) for coord in tokens[1:4]]
             vertices.append(coords)
 
         if tokens[0] == "f":

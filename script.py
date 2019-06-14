@@ -109,6 +109,8 @@ def run(filename):
     knobs = second_pass(commands, num_frames)
 
 
+    print( 'NUMFRAMES' )
+    print num_frames
     for i in range(int(num_frames)):
         print ("Pic " + str(i))
         tmp = new_matrix()
@@ -261,4 +263,5 @@ def run(filename):
 
         save_extension(screen,'anim/' + name + ('%03d' %int(i)))
 
-    make_animation(name)
+    if num_frames > 1:
+        make_animation(name)

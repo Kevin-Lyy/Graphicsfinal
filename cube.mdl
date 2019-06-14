@@ -1,13 +1,16 @@
 //frames 10 
-//basename dia
-light green 1 1 0 1 255 0 
+//basename cube
+light green 0 0 10 0 255 0
 push
 move 250 250 0
 rotate z 30
+rotate y 30
 
 
 //vary k0 0 9 0 255
 //vary k1 0 9 0 1
 
 
-mesh:diamond
+mesh:cube
+
+save cube.png
