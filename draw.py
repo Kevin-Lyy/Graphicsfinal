@@ -2,6 +2,102 @@ from display import *
 from matrix import *
 from gmath import *
 
+def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color):
+    if x0 > x1:
+        tx = x0
+        tz = z0
+        x0 = x1
+        z0 = z1
+        x1 = tx
+        z1 = tz
+
+    x = x0
+    z = z0
+    delta_z = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
+
+    while x <= x1:
+        plot(screen, zbuffer, color, x, y, z)
+        x+= 1
+        z+= delta_z
+
+def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_norms):
+    flip = False
+    BOT = 0
+    TOP = 2
+    MID = 1
+
+    points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
+               (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
+               (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
+
+    points.sort(key = lambda x: x[1])
+    x0 = points[BOT][0]
+    z0 = points[BOT][2]
+    x1 = points[BOT][0]
+    z1 = points[BOT][2]
+    y = int(points[BOT][1])
+
+    aN_bot = average_vector_norms[ str(estimate(points[BOT])) ][0]
+    inten_bot = [0,0,0]
+    for light in light_info[2]:
+        c =  get_lighting(aN_bot, light_info[0], light_info[1], light, light_info[3], light_info[4] )
+        inten_bot[0] += c[0]
+        inten_bot[1] += c[1]
+        inten_bot[2] += c[2]
+    limit_color(inten_bot)
+    print "INTEN"
+    print inten_bot
+
+    aN_mid = average_vector_norms[ str(estimate(points[MID])) ][0]
+    inten_mid = [0,0,0]
+    for light in light_info[2]:
+        c =  get_lighting(aN_mid, light_info[0], light_info[1], light, light_info[3], light_info[4] )
+        inten_mid[0] += c[0]
+        inten_mid[1] += c[1]
+        inten_mid[2] += c[2]
+    limit_color(aN_mid)
+    print inten_mid
+
+    aN_top = average_vector_norms[ str(estimate(points[TOP])) ][0]
+    inten_top = [0,0,0]
+    for light in light_info[2]:
+        c =  get_lighting(aN_top, light_info[0], light_info[1], light, light_info[3], light_info[4] )
+        inten_top[0] += c[0]
+        inten_top[1] += c[1]
+        inten_top[2] += c[2]
+    limit_color(inten_top)
+    print inten_top
+
+    # inten_bot/mid/top
+
+    distance0 = int(points[TOP][1]) - y * 1.0 + 1
+    distance1 = int(points[MID][1]) - y * 1.0 + 1
+    distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
+
+    dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
+    dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
+    dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
+    dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+
+    # inten0 = bot to mid, 
+    #
+    while y <= int(points[TOP][1]):
+        if ( not flip and y >= int(points[MID][1])):
+            flip = True
+
+            dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
+            dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
+            x1 = points[MID][0]
+            z1 = points[MID][2]
+
+        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+        draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, inten_bot)
+        x0+= dx0
+        z0+= dz0
+        x1+= dx1
+        z1+= dz1
+        y+= 1
+
 def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
     if x0 > x1:
         tx = x0
@@ -20,7 +116,7 @@ def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
         x+= 1
         z+= delta_z
 
-def scanline_convert(polygons, i, screen, zbuffer, color, shading):
+def scanline_convert(polygons, i, screen, zbuffer, color):
     flip = False
     BOT = 0
     TOP = 2
@@ -29,15 +125,6 @@ def scanline_convert(polygons, i, screen, zbuffer, color, shading):
     points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-    if shading == 'gouraud':
-        pass
-        # print 'GOURAUD'
-        # vertices = [
-        #         calculate_normal(polygons, i),
-        #         calculate_normal(polygons, i+1),
-        #         calculate_normal(polygons, i+2)
-        #         ]
-        # print polygons
 
     # alas random color, we hardly knew ye
     #color = [0,0,0]
@@ -134,7 +221,7 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
     average_vector_norms = {}
     if shading == 'gouraud' or shading == 'phong':
         average_vector_norms = calculate_vertex_norms( polygons )
-        print average_vector_norms
+        # print average_vector_norms
 
     point = 0
     while point < len(polygons) - 2:
@@ -144,23 +231,26 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
         #print normal
         if normal[2] > 0:
 
-            color = [0,0,0]
-            for light in lights:
-                c =  get_lighting(normal, view, ambient, light, symbols, reflect )
-                color[0] += c[0]
-                color[1] += c[1]
-                color[2] += c[2]
-            limit_color(color)
-            scanline_convert(polygons, point, screen, zbuffer, color, shading)
-            # if shading == 'flat':
-            #     print 'flat'
-            #     scanline_convert(polygons, point, screen, zbuffer, color)
-            # elif shading == 'gouraud':
-            #     print 'gouraud'
-            #     scanline_convert(polygons, point, screen, zbuffer, color)
-            # else:
-            #     print 'phong'
-            #     scanline_convert(polygons, point, screen, zbuffer, color)
+            #scanline_convert(polygons, point, screen, zbuffer, color, shading, average_vector_norms)
+            if shading == 'flat':
+                color = [0,0,0]
+                for light in lights:
+
+                    c =  get_lighting(normal, view, ambient, light, symbols, reflect )
+
+                    color[0] += c[0]
+                    color[1] += c[1]
+                    color[2] += c[2]
+                limit_color(color)
+                scanline_convert(polygons, point, screen, zbuffer, color)
+            elif shading == 'gouraud':
+
+                light_info = [view, ambient, lights, symbols, reflect]
+
+                scanline_gouraud(polygons, point, screen, zbuffer, light_info, average_vector_norms)
+            else:
+                print 'phong'
+                scanline_phong(polygons, point, screen, zbuffer, color, average_vector_norms)
 
             # draw_line( int(polygons[point][0]),
             #            int(polygons[point][1]),
