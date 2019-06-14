@@ -112,13 +112,13 @@ def run(filename):
     shade_type = 'flat'
     if 'shading' in symbols:
         shade_type = symbols['shading'][1]
-        print shade_type
+        # print shade_type
 
 
     # print( 'NUMFRAMES' )
     # print num_frames
     # print
-    # print 
+    # print
     # print 'SYMBOLS'
     # print symbols
     # for s in symbols:

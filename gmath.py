@@ -14,7 +14,7 @@ from display import *
   # doubles (red, green, blue)
 
 '''SCALING USED FOR MESH FILE'''
-SCALING = 30
+SCALING = 100
 
 AMBIENT = 0
 DIFFUSE = 1
@@ -136,7 +136,7 @@ def normalize(vector):
                            vector[1] * vector[1] +
                            vector[2] * vector[2])
     for i in range(3):
-        vector[i] = vector[i] / magnitude
+        vector[i] = vector[i] / magnitude if magnitude != 0 else 1
 
 #Return the dot porduct of a . b
 def dot_product(a, b):

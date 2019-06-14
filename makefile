@@ -10,6 +10,12 @@ shuttle: shuttle.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py
 cube: cube.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
 	python main.py cube.mdl
 
+violin: violin.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
+	python main.py violin.mdl
+
+al: al.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
+	python main.py al.mdl
+
 clean:
 	rm *pyc *out parsetab.py
 	rm ./anim/*.png

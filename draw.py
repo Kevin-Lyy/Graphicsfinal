@@ -330,14 +330,14 @@ def add_mesh(polygons, filename):
             vertices.append(coords)
 
         if tokens[0] == "f":
-            print tokens
+            #print tokens
             Nvertices = []
             for token in tokens[1:]:
                 face_infos = token.split("/")
-                print token
-                print face_infos
+                #print token
+                #print face_infos
                 Nvertices.append(int(face_infos[0]))
-            print Nvertices
+            #print Nvertices
 
 
 
@@ -360,7 +360,7 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x2, y2, z2)
 
 def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, reflect, shading):
-    print lights
+    #print lights
     light = [ lights[0][0], lights[0][1] ]
     print light
     if len(polygons) < 2:
