@@ -14,7 +14,7 @@ from display import *
   # doubles (red, green, blue)
 
 '''SCALING USED FOR MESH FILE'''
-SCALING = 50
+SCALING = 30
 
 AMBIENT = 0
 DIFFUSE = 1
@@ -34,37 +34,37 @@ def calculate_vertex_norms(polygons):
     # norms = { k: [ avg_normal, num_elements ] }
     norms = {}
 
+    for point in polygons:
+        norms[ str(estimate(point)) ] = [0,0,0]
     i = 0
     while i < len(polygons) - 2:
+        tri_normal = calculate_normal(polygons, i)
+        normalize(tri_normal)
         # points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
         #        (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
         #        (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-        points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
-                   (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
-                   (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-        tri_normal = calculate_normal(polygons, i)
+        points = [ (polygons[i][0], polygons[i][1], polygons[i][2], 1),
+                   (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2], 1),
+                   (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2], 1) ]
         # print tri_normal
         point_keys = [ str(estimate(p)) for p in points ]
         for pk in point_keys:
-            if pk not in norms:
-                norms[pk] = [tri_normal, 0]
-            else:
-                # counter
-                norms[pk][1] += 1
-                # average
-                norms[pk][0] = [ (norms[pk][0][index] + tri_normal[index])/norms[pk][1] for index in range(len(tri_normal))]
+            # print pk in norms
+            norms[pk][0] += tri_normal[0]
+            norms[pk][1] += tri_normal[1]
+            norms[pk][2] += tri_normal[2]
+            #if pk not in norms:
+            #    norms[pk] = [tri_normal, 0]
+            #else:
+            #    # counter
+            #    norms[pk][1] += 1
+            #    # average
+            #    norms[pk][0] = [ (norms[pk][0][index] + tri_normal[index]) for index in range(len(tri_normal))]
         i += 3
 
-    # for v in polygons:
-    #     # v is key in norms
-    #     k = str(estimate(v))
+    for key in norms:
+        normalize(norms[key])
 
-    #     if k not in norms:
-    #         norms[k] = [ normalize(v), 0 ]
-    #     else:
-    #         print norms[k]
-    #         # norms[k][1] += 1
-    #         # norms[k][0] = (norms[k][0] + normalize(v)) / norms[k][1]
     return norms
 
 #lighting functions
