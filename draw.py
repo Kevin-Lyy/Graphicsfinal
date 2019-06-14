@@ -2,7 +2,7 @@ from display import *
 from matrix import *
 from gmath import *
 
-def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, lim0, lim1):
+def draw_scanline_phong(x0, z0, x1, z1, y, screen, zbuffer, view, ambient, light, symbols, reflect, lim0, lim1):
     if x0 > x1:
         tx = x0
         tz = z0
@@ -27,6 +27,125 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, lim0, lim1):
     dz_color = (lim1[2] - lim0[2]) / distance if distance != 0 else 0
 
     while x <= x1:
+        pcolor = [ x_color, y_color, z_color]
+        color = get_lighting(pcolor,view,ambient,light,symbols,reflect)
+        plot(screen, zbuffer, color, x, y, z)
+
+        x+= 1
+        z+= delta_z
+        x_color += dx_color
+        y_color += dy_color
+        z_color += dz_color
+
+def scanline_phong(polygons, i, screen, zbuffer, colors, view, ambient, light, symbols, reflect):
+    flip = False
+    BOT = 0
+    TOP = 2
+    MID = 1
+
+    points = [ (polygons[i][0], polygons[i][1], polygons[i][2], colors[0]),
+               (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2], colors[1]),
+               (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2], colors[2]) ]
+
+    points.sort(key = lambda x: x[1])
+    x0 = points[BOT][0]
+    z0 = points[BOT][2]
+    x1 = points[BOT][0]
+    z1 = points[BOT][2]
+    y = int(points[BOT][1])
+
+    distance0 = int(points[TOP][1]) - y * 1.0 + 1
+    distance1 = int(points[MID][1]) - y * 1.0 + 1
+    distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
+
+    dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
+    dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
+    dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
+    dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+
+
+    x0_color = points[BOT][3][0]
+    y0_color = points[BOT][3][1]
+    z0_color = points[BOT][3][2]
+    x1_color = points[BOT][3][0]
+    y1_color = points[BOT][3][1]
+    z1_color = points[BOT][3][2]
+    dx0_color = (points[TOP][3][0] - points[BOT][3][0]) / distance0 if distance0 != 0 else 0
+    dy0_color = (points[TOP][3][1] - points[BOT][3][1]) / distance0 if distance0 != 0 else 0
+    dz0_color = (points[TOP][3][2] - points[BOT][3][2]) / distance0 if distance0 != 0 else 0
+    dx1_color = (points[MID][3][0] - points[BOT][3][0]) / distance1 if distance1 != 0 else 0
+    dy1_color = (points[MID][3][1] - points[BOT][3][1]) / distance1 if distance1 != 0 else 0
+    dz1_color = (points[MID][3][2] - points[BOT][3][2]) / distance1 if distance1 != 0 else 0
+
+    # inten0 = bot to top
+    # inten1 = bot to mid, mid to top
+    while y <= int(points[TOP][1]):
+        if ( not flip and y >= int(points[MID][1])):
+            flip = True
+
+            dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
+            dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
+            x1 = points[MID][0]
+            z1 = points[MID][2]
+
+            dx1_color = (points[TOP][3][0] - points[MID][3][0]) / distance2 if distance2 != 0 else 0
+            dy1_color = (points[TOP][3][1] - points[MID][3][1]) / distance2 if distance2 != 0 else 0
+            dz1_color = (points[TOP][3][2] - points[MID][3][2]) / distance2 if distance2 != 0 else 0
+            x1_color = points[MID][3][0]
+            y1_color = points[MID][3][1]
+            z1_color = points[MID][3][2]
+
+        # inten0_part0 = [ (y - points[BOT][1])*color_mid for color_mid in points[MID][3] ]
+        # inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in points[BOT][3] ]
+        # inten0_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
+        # inten0 = [ inten0_colo/ (points[MID][1] - points[BOT][1]) for inten0_colo in inten0_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
+
+        # inten1_part0 = [ (y - points[BOT][1])*color_top for color_top in points[TOP][3] ]
+        # inten1_part1 = [ (points[TOP][1] - y)*color_bot for color_bot in points[BOT][3] ]
+        # inten1_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
+        # inten1 = [ inten1_colo/ (points[MID][1] - points[BOT][1]) for inten1_colo in inten1_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
+
+        lim0 = [x0_color, y0_color, z0_color]
+        lim1 = [x1_color, y1_color, z1_color]
+        draw_scanline_phong(int(x0), z0, int(x1), z1, y, screen, zbuffer, view, ambient, light, symbols, reflect,lim0,lim1)
+        x0+= dx0
+        z0+= dz0
+        x1+= dx1
+        z1+= dz1
+        y+= 1
+
+        x0_color += dx0_color
+        y0_color += dy0_color
+        z0_color += dz0_color
+        x1_color += dx1_color
+        y1_color += dy1_color
+        z1_color += dz1_color
+
+def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, lim0, lim1):
+    if x0 > x1:
+        tx = x0
+        tz = z0
+        x0 = x1
+        z0 = z1
+        x1 = tx
+        z1 = tz
+        temp = lim0
+        lim0 = lim1
+        lim1 = temp
+
+    x = x0
+    z = z0
+    dz = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
+
+    distance = x1 - x0 + 1
+    x_color = lim0[0]
+    y_color = lim0[1]
+    z_color = lim0[2]
+    dx_color = (lim1[0] - lim0[0]) / distance if distance != 0 else 0
+    dy_color = (lim1[1] - lim0[1]) / distance if distance != 0 else 0
+    dz_color = (lim1[2] - lim0[2]) / distance if distance != 0 else 0
+
+    while x <= x1:
         # inten_part0 = [ (x0-x)*color1 for color1 in inten1 ]
         # inten_part1 = [ (x-x1)*color0 for color0 in inten0 ]
         # inten_part2 = [ inten_part0[i] + inten_part1[i] for i in range(len(inten_part0)) ]
@@ -35,7 +154,7 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, lim0, lim1):
         color = [ int(x_color), int(y_color), int(z_color)]
         plot(screen, zbuffer, color, x, y, z)
         x+= 1
-        z+= delta_z
+        z+= dz
         x_color += dx_color
         y_color += dy_color
         z_color += dz_color
@@ -80,7 +199,7 @@ def scanline_gouraud(polygons, i, screen, zbuffer, colors):
     dy1_color = (points[MID][3][1] - points[BOT][3][1]) / distance1 if distance1 != 0 else 0
     dz1_color = (points[MID][3][2] - points[BOT][3][2]) / distance1 if distance1 != 0 else 0
 
-    # inten0 = bot to top 
+    # inten0 = bot to top
     # inten1 = bot to mid, mid to top
     while y <= int(points[TOP][1]):
         if ( not flip and y >= int(points[MID][1])):
@@ -99,12 +218,12 @@ def scanline_gouraud(polygons, i, screen, zbuffer, colors):
             z1_color = points[MID][3][2]
 
         # inten0_part0 = [ (y - points[BOT][1])*color_mid for color_mid in points[MID][3] ]
-        # inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in points[BOT][3] ] 
+        # inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in points[BOT][3] ]
         # inten0_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
         # inten0 = [ inten0_colo/ (points[MID][1] - points[BOT][1]) for inten0_colo in inten0_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
 
         # inten1_part0 = [ (y - points[BOT][1])*color_top for color_top in points[TOP][3] ]
-        # inten1_part1 = [ (points[TOP][1] - y)*color_bot for color_bot in points[BOT][3] ] 
+        # inten1_part1 = [ (points[TOP][1] - y)*color_bot for color_bot in points[BOT][3] ]
         # inten1_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
         # inten1 = [ inten1_colo/ (points[MID][1] - points[BOT][1]) for inten1_colo in inten1_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
 
@@ -284,9 +403,17 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
                 colors = [ light0, light1, light2 ]
 
                 scanline_gouraud(polygons, point, screen, zbuffer, colors)
-            else:
-                print 'phong'
-                scanline_phong(polygons, point, screen, zbuffer, color, average_vector_norms)
+            elif shading == 'phong':
+                #print 'phong'
+                norm0 = average_vector_norms[ str(estimate(polygons[point])) ]
+                norm1 = average_vector_norms[ str(estimate(polygons[point+1])) ]
+                norm2 = average_vector_norms[ str(estimate(polygons[point+2])) ]
+
+                colors = [norm0,norm1,norm2]
+
+                scanline_phong(polygons, point, screen, zbuffer, colors, view, ambient, light, symbols, reflect)
+
+
 
             # draw_line( int(polygons[point][0]),
             #            int(polygons[point][1]),

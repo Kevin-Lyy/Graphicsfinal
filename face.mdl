@@ -1,4 +1,5 @@
 // Note: This uses the light values in the provided source code.
+//shading phong
 shading gouraud
 light test 0.5 0.75 1 200 50 150
 push
@@ -16,4 +17,4 @@ rotate x 30
 scale 1 1 0.5
 torus 0 0 0 30 175
 display
-save face.png
+save face_gouraud.mdl
