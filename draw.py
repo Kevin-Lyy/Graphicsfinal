@@ -16,7 +16,7 @@ def draw_scanline_phong(x0, z0, x1, z1, y, screen, zbuffer, view, ambient, light
 
     x = x0
     z = z0
-    delta_z = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
+    dz = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
 
     distance = x1 - x0 + 1
     x_color = lim0[0]
@@ -32,7 +32,7 @@ def draw_scanline_phong(x0, z0, x1, z1, y, screen, zbuffer, view, ambient, light
         plot(screen, zbuffer, color, x, y, z)
 
         x+= 1
-        z+= delta_z
+        z+= dz
         x_color += dx_color
         y_color += dy_color
         z_color += dz_color
