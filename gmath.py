@@ -14,7 +14,7 @@ from display import *
   # doubles (red, green, blue)
 
 '''SCALING USED FOR MESH FILE'''
-SCALING = 200
+SCALING = 50
 
 AMBIENT = 0
 DIFFUSE = 1

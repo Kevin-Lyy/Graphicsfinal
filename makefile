@@ -4,8 +4,8 @@ test: simple_anim.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.p
 face: face.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
 	python main.py face.mdl
 
-diamond: diamond.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
-	python main.py diamond.mdl
+human: human.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
+	python main.py human.mdl
 
 cube: cube.mdl lex.py main.py matrix.py mdl.py display.py draw.py gmath.py yacc.py
 	python main.py cube.mdl
