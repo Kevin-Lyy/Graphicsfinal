@@ -2,7 +2,7 @@ from display import *
 from matrix import *
 from gmath import *
 
-def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color):
+def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, inten0, inten1):
     if x0 > x1:
         tx = x0
         tz = z0
@@ -16,6 +16,16 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color):
     delta_z = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
 
     while x <= x1:
+        # inten0_part0 = [ (y - points[BOT[1]])*color_mid for colo_mid in inten_mid ]
+        # inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in inten_bot ] 
+        # inten0_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
+        # inten0 = inten0_part2 / (points[MID][1] - points[BOT][1])
+        inten_part0 = [ (x0-x)*color1 for color1 in inten1 ]
+        inten_part1 = [ (x-x1)*color0 for color0 in inten0 ]
+        inten_part2 = [ inten_part0[i] + inten_part1[i] for i in range(len(inten_part0)) ]
+        color = [ colo/(x0-x) for colo in inten_part2 ] if x0 - x != 0 else [0,0,0]
+        # color = inten_part2 / ( x0-x )
+
         plot(screen, zbuffer, color, x, y, z)
         x+= 1
         z+= delta_z
@@ -45,8 +55,7 @@ def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_no
         inten_bot[1] += c[1]
         inten_bot[2] += c[2]
     limit_color(inten_bot)
-    print "INTEN"
-    print inten_bot
+    # print inten_bot
 
     aN_mid = average_vector_norms[ str(estimate(points[MID])) ][0]
     inten_mid = [0,0,0]
@@ -55,8 +64,8 @@ def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_no
         inten_mid[0] += c[0]
         inten_mid[1] += c[1]
         inten_mid[2] += c[2]
-    limit_color(aN_mid)
-    print inten_mid
+    limit_color(inten_mid)
+    # print inten_mid
 
     aN_top = average_vector_norms[ str(estimate(points[TOP])) ][0]
     inten_top = [0,0,0]
@@ -66,7 +75,7 @@ def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_no
         inten_top[1] += c[1]
         inten_top[2] += c[2]
     limit_color(inten_top)
-    print inten_top
+    # print inten_top
 
     # inten_bot/mid/top
 
@@ -79,8 +88,8 @@ def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_no
     dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
 
-    # inten0 = bot to mid, 
-    #
+    # inten0 = bot to top 
+    # inten1 = bot to mid, mid to top
     while y <= int(points[TOP][1]):
         if ( not flip and y >= int(points[MID][1])):
             flip = True
@@ -90,8 +99,24 @@ def scanline_gouraud(polygons, i, screen, zbuffer, light_info, average_vector_no
             x1 = points[MID][0]
             z1 = points[MID][2]
 
-        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
-        draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, inten_bot)
+
+        # print y
+        # print points[BOT][1]
+        # print inten_mid
+        # print y-points[BOT[1]]
+        inten0_part0 = [ (y - points[BOT][1])*color_mid for color_mid in inten_mid ]
+        inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in inten_bot ] 
+        inten0_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
+        inten0 = [ inten0_colo/ (points[MID][1] - points[BOT][1]) for inten0_colo in inten0_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
+        # inten0 = inten0_part2 / (points[MID][1] - points[BOT][1])
+
+        inten1_part0 = [ (y - points[BOT][1])*color_top for color_top in inten_top ]
+        inten1_part1 = [ (points[TOP][1] - y)*color_bot for color_bot in inten_bot ] 
+        inten1_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
+        inten1 = [ inten1_colo/ (points[MID][1] - points[BOT][1]) for inten1_colo in inten1_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
+        # inten1 = inten0_part2 / (points[TOP][1] - points[BOT][1])
+
+        draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, inten0, inten1)
         x0+= dx0
         z0+= dz0
         x1+= dx1
