@@ -77,8 +77,6 @@ def scanline_phong(polygons, i, screen, zbuffer, colors, view, ambient, light, s
     dy1_color = (points[MID][3][1] - points[BOT][3][1]) / distance1 if distance1 != 0 else 0
     dz1_color = (points[MID][3][2] - points[BOT][3][2]) / distance1 if distance1 != 0 else 0
 
-    # inten0 = bot to top
-    # inten1 = bot to mid, mid to top
     while y <= int(points[TOP][1]):
         if ( not flip and y >= int(points[MID][1])):
             flip = True
@@ -95,15 +93,6 @@ def scanline_phong(polygons, i, screen, zbuffer, colors, view, ambient, light, s
             y1_color = points[MID][3][1]
             z1_color = points[MID][3][2]
 
-        # inten0_part0 = [ (y - points[BOT][1])*color_mid for color_mid in points[MID][3] ]
-        # inten0_part1 = [ (points[MID][1] - y)*color_bot for color_bot in points[BOT][3] ]
-        # inten0_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
-        # inten0 = [ inten0_colo/ (points[MID][1] - points[BOT][1]) for inten0_colo in inten0_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
-
-        # inten1_part0 = [ (y - points[BOT][1])*color_top for color_top in points[TOP][3] ]
-        # inten1_part1 = [ (points[TOP][1] - y)*color_bot for color_bot in points[BOT][3] ]
-        # inten1_part2 = [ inten0_part0[i]+inten0_part1[i] for i in range(len(inten0_part0)) ]
-        # inten1 = [ inten1_colo/ (points[MID][1] - points[BOT][1]) for inten1_colo in inten1_part2] if (points[MID][1] - points[BOT][1]) != 0 else [0,0,0]
 
         lim0 = [x0_color, y0_color, z0_color]
         lim1 = [x1_color, y1_color, z1_color]
@@ -146,10 +135,7 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, lim0, lim1):
     dz_color = (lim1[2] - lim0[2]) / distance if distance != 0 else 0
 
     while x <= x1:
-        # inten_part0 = [ (x0-x)*color1 for color1 in inten1 ]
-        # inten_part1 = [ (x-x1)*color0 for color0 in inten0 ]
-        # inten_part2 = [ inten_part0[i] + inten_part1[i] for i in range(len(inten_part0)) ]
-        # color = [ colo/(x0-x) for colo in inten_part2 ] if x0 - x != 0 else [0,0,0]
+
 
         color = [ int(x_color), int(y_color), int(z_color)]
         plot(screen, zbuffer, color, x, y, z)

@@ -1,0 +1,9 @@
+shading phong
+light test 0.5 0.75 1 0 150 255
+
+move 250 200 0
+rotate y 30
+
+
+mesh:lamp
+save lamp.png
