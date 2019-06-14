@@ -13,6 +13,9 @@ from display import *
   # Reflection constants (ka, kd, ks) are represened as arrays of
   # doubles (red, green, blue)
 
+'''SCALING USED FOR MESH FILE'''
+SCALING = 200
+
 AMBIENT = 0
 DIFFUSE = 1
 SPECULAR = 2
