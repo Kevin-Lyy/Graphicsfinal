@@ -20,7 +20,7 @@ def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
         x+= 1
         z+= delta_z
 
-def scanline_convert(polygons, i, screen, zbuffer, color):
+def scanline_convert(polygons, i, screen, zbuffer, color, shading):
     flip = False
     BOT = 0
     TOP = 2
@@ -29,6 +29,15 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
     points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
+    if shading == 'gouraud':
+        pass
+        # print 'GOURAUD'
+        # vertices = [
+        #         calculate_normal(polygons, i),
+        #         calculate_normal(polygons, i+1),
+        #         calculate_normal(polygons, i+2)
+        #         ]
+        # print polygons
 
     # alas random color, we hardly knew ye
     #color = [0,0,0]
@@ -122,6 +131,11 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
         print 'Need at least 3 points to draw'
         return
 
+    average_vector_norms = {}
+    if shading == 'gouraud' or shading == 'phong':
+        average_vector_norms = calculate_vertex_norms( polygons )
+        # print average_vector_norms
+
     point = 0
     while point < len(polygons) - 2:
 
@@ -137,16 +151,16 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
                 color[1] += c[1]
                 color[2] += c[2]
             limit_color(color)
-            # scanline_convert(polygons, point, screen, zbuffer, color)
-            if shading == 'flat':
-                print 'flat'
-                scanline_convert(polygons, point, screen, zbuffer, color)
-            elif shading == 'gouraud':
-                print 'gouraud'
-                scanline_convert(polygons, point, screen, zbuffer, color)
-            else:
-                print 'phong'
-                scanline_convert(polygons, point, screen, zbuffer, color)
+            scanline_convert(polygons, point, screen, zbuffer, color, shading)
+            # if shading == 'flat':
+            #     print 'flat'
+            #     scanline_convert(polygons, point, screen, zbuffer, color)
+            # elif shading == 'gouraud':
+            #     print 'gouraud'
+            #     scanline_convert(polygons, point, screen, zbuffer, color)
+            # else:
+            #     print 'phong'
+            #     scanline_convert(polygons, point, screen, zbuffer, color)
 
             # draw_line( int(polygons[point][0]),
             #            int(polygons[point][1]),

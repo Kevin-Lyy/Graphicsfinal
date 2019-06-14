@@ -23,6 +23,33 @@ LOCATION = 0
 COLOR = 1
 SPECULAR_EXP = 4
 
+
+# estimate for float point error
+def estimate(vertex):
+    est = [ int( "%.0f" % (v * 10000) ) for v in vertex[:3] ]
+    est.append(1)
+    return est
+
+#return dictionary of average vector normals for polygon matrix
+def calculate_vertex_norms(polygons):
+    # norms = { k: [ avg_normal, num_elements ] }
+    norms = {}
+
+    point = 0
+    while point < len(polygons) - 2:
+        pass
+    for v in polygons:
+        # v is key in norms
+        k = str(estimate(v))
+
+        if k not in norms:
+            norms[k] = [ normalize(v), 0 ]
+        else:
+            print norms[k]
+            # norms[k][1] += 1
+            # norms[k][0] = (norms[k][0] + normalize(v)) / norms[k][1]
+    return norms
+
 #lighting functions
 def get_lighting(normal, view, ambient, light, symbols, reflect ):
 
