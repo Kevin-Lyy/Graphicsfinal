@@ -134,7 +134,7 @@ def draw_polygons( polygons, screen, zbuffer, view, ambient, lights, symbols, re
     average_vector_norms = {}
     if shading == 'gouraud' or shading == 'phong':
         average_vector_norms = calculate_vertex_norms( polygons )
-        # print average_vector_norms
+        print average_vector_norms
 
     point = 0
     while point < len(polygons) - 2:
